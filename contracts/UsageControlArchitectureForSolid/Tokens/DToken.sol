@@ -6,7 +6,8 @@ import "../Libraries/Ownable.sol";
 
 contract DToken is ERC20,Ownable {
 
-    constructor() ERC20("DToken","DT"){}  
+    constructor() ERC20("DToken","DT") {}
+    
 
 
     function mint(address account, uint256 amount) public onlyOwner returns (bool) 
@@ -15,9 +16,9 @@ contract DToken is ERC20,Ownable {
         return true;
     }
 
-    function burn(uint256 amount) public onlyOwner virtual 
+    function burn(address account,uint256 amount) public onlyOwner virtual 
     {
-        _burn(_msgSender(), amount);
+        _burn(account, amount);
     }
 
 
