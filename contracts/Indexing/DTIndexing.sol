@@ -10,16 +10,9 @@ contract DTIndexing
     DTsubscription private dtSubscription;
     Pod[] private podList;
     Resource[] private resourceList;
-    //TODO
-    //modifier hasActiveSubscription(address addr,uint idSubscription){
-      //require(addr==dtSubscription.ownerOf(idSubscription),"You are not the owner of the subscription");
-      //require (dtSubscription.isSubscriptionActive(idSubscription),"The subscription is not active");
-      // _;
-      // }
 
   modifier validPodId(uint id,uint idSubscription,address owner) 
   {
-
     require (id<podList.length,"The given id is unknown");
     Pod memory pod= podList[id];
     require(pod.isActive==true,"The pod is not active");

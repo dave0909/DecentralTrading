@@ -61,15 +61,16 @@ contract DTObligations is Ownable
 
 
 
-    function addDefaultAccessCounterObligation(uint accessCounter)public {
-         defaultPodObligation.acObligation.exists=true;
-         defaultPodObligation.acObligation.accessCounter=accessCounter;
+    function addDefaultAccessCounterObligation(uint accessCounter)public 
+    {
+        defaultPodObligation.acObligation.exists=true;
+        defaultPodObligation.acObligation.accessCounter=accessCounter;
     }
     function addDefaultTemporalObligation(uint temporalObligation)public isValidTemporal(temporalObligation) {
         uint d=1 days;
         require(temporalObligation>d,"The temporal obligation must be at least 1 day");
-         defaultPodObligation.temporalObligation.exists=true;
-         defaultPodObligation.temporalObligation.usageDuration=temporalObligation;
+        defaultPodObligation.temporalObligation.exists=true;
+        defaultPodObligation.temporalObligation.usageDuration=temporalObligation;
     }
     function addDefaultCountryObligation(uint country)public {
         defaultPodObligation.countryObligation.exists=true;

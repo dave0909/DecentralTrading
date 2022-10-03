@@ -35,10 +35,5 @@ class DTauthenticator():
         rounded=self.rounded_to_the_last_30th_minute_epoch(int(time_in_rome.timestamp()))
         msg_hash=self.encode_unsigned(resource,str(rounded))
         bytes_signature=HexBytes(signature)
-        #print("Claim",claim)
-        #print("Signature",signature)
-        #print("Resource",resource)
-        #print("MSG",msg_hash)
         print("is authenticated: "+str(self.authenticate_signature(signature,msg_hash,claim)))
-
         return self.authenticate_signature(signature,msg_hash,claim)

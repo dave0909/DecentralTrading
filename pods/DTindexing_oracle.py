@@ -56,11 +56,8 @@ class DTindexing_oracle:
         tx=self.contract_instance.functions.registerPod(pod_reference,pod_type,Web3.toChecksumAddress(public_key_pod)).buildTransaction({'gasPrice': Web3.toWei(21, 'gwei'),'nonce': self.provider.eth.getTransactionCount(public_key_owner)})
         signed_txn = self.provider.eth.account.sign_transaction(tx, private_key=private_key_owner)
         tx=Web3.toHex(self.provider.eth.sendRawTransaction(signed_txn.rawTransaction))
-       # retVal = self.provider.eth.waitForTransactionReceipt(tx)['logs'][0]['data']
         retVal = self.provider.eth.waitForTransactionReceipt(tx)
-        #id=int(retVal,16)
-        gino=self.contract_instance.events.NewPod().processReceipt(retVal)
-        print(gino)
-        id=gino[0]['args']['idPod']
-        obligation_address=gino[0]['args']['obligationAddress']
+        processed_receipt=self.contract_instance.events.NewPod().processReceipt(retVal)
+        id=processed_receipt[0]['args']['idPod']
+        obligation_address=processed_receipt[0]['args']['obligationAddress']
         return id,public_key_pod,private_key_pod,obligation_address
