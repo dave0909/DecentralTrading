@@ -1,9 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.0;
-//TODO: Redistribuzione a data owner
 import '@openzeppelin/contracts/token/ERC721/ERC721.sol';
 import '../Libraries/Ownable.sol';
-import './DToken.sol';
+import './DTtoken.sol';
 
 
 /*
@@ -19,7 +18,7 @@ contract DTsubscription is ERC721, Ownable {
   //Price in DTtoken of the NFT subscription
   uint256 private constant price = 1;
   //Instance of the smart contract handling DTtokens
-  DToken private dToken;
+  DTtoken private dToken;
   //Duration of the subscription
   uint constant subscriptionDuration=30 days;
   //Number of subscriptions generated, used as identifier
@@ -30,7 +29,7 @@ contract DTsubscription is ERC721, Ownable {
   mapping(uint=>SubscriptionInfo) idToSubscriptionInfo;
   //Constructor of the smart contract
   constructor(address dtoken) ERC721("DTsubscription","DTS"){
-    dToken=DToken(dtoken);
+    dToken=DTtoken(dtoken);
   }
   //Method exchange an amount of DTtoknes of the caller user, with a new DTsubscription
   function purchaseSubscription() public  returns(uint)
