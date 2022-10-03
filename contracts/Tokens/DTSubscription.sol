@@ -28,14 +28,11 @@ contract DTsubscription is ERC721, Ownable {
   mapping(uint=>address) tokenOwner;
   //Mapping which relates wach id subcription to the contained information
   mapping(uint=>SubscriptionInfo) idToSubscriptionInfo;
-  
-
-
-
+  //Constructor of the smart contract
   constructor(address dtoken) ERC721("DTsubscription","DTS"){
     dToken=DToken(dtoken);
   }
-
+  //Method exchange an amount of DTtoknes of the caller user, with a new DTsubscription
   function purchaseSubscription() public  returns(uint)
   {
     dToken.transferFrom(msg.sender,address(this),price);
@@ -50,18 +47,24 @@ contract DTsubscription is ERC721, Ownable {
   {
 
   }
+  // The method verifies that the input DTsubscription ID is still valid.
   function isSubscriptionActive(uint256 _tokenId) public view returns (bool state){
     SubscriptionInfo memory token = idToSubscriptionInfo[_tokenId];
     if(token.expiresOn<block.timestamp){return false;}
     else{return true;}
   }
-
+  /*
+  The method check if the input DTsubscription ID is related to an active subscription,
+   owned by the inuput claim_owner
+   */
   function verify_subscription(uint256 _tokenId,address claim_owner)public view returns(bool){
     address real_owner=tokenOwner[_tokenId];
     return isSubscriptionActive(_tokenId) && real_owner==claim_owner;
 
   }
-
+  /*
+  The method retrieve all the DTsubscriptions related to the input address
+   */
   function get_subscriptions(address addr) public view returns(uint[] memory)
   {
 
@@ -76,9 +79,13 @@ contract DTsubscription is ERC721, Ownable {
     }
     return final_result;
   }
-
+  /*
+  Enum which express the subscription type. Actually we have only one type of subscriptions
+   */
 enum SubscriptionType{FULL_SUBSCRIPTION}
-
+  /*
+  Struct containing the DTsubscription's information.
+   */
 struct SubscriptionInfo {
 
     uint registeredOn;
