@@ -4,7 +4,7 @@ import "../Tokens/DTSubscription.sol";
 import "../Policies/DTObligation.sol";
 contract DTIndexing
 {
-
+  
     int private podsCounter=0;
     int private resourceCounter=0;
     DTsubscription private dtSubscription;
