@@ -85,6 +85,8 @@ contract DTobligations is Ownable
         defaultPodObligation.acObligation.exists=true;
         defaultPodObligation.acObligation.accessCounter=accessCounter;
     }
+
+    
     /*
     Function that sets a default Temporal obligation associated with the pod.
     */
