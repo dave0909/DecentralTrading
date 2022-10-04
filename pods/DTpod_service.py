@@ -21,22 +21,30 @@ try:
 except ImportError:
     from io import StringIO
 from DTaddresses import *
-
+"""
+Class that implement the pod's web service.
+The class allows the pod to deliver on demand data through the HTTP protocol
+"""
 class DTpod_service(BaseHTTPRequestHandler):
                 
     server_version = "SimpleHTTPWithUpload/" + __version__
     authenticator=DTauthenticator()
-   
-
+    """
+    Class that implement the pod's web service.
+    The class allows the pod to deliver on demand data through the HTTP protocol
+    """
     def __init__(self, pod_pk,*args):
         self.pod_pk=pod_pk
         self.subscription_oracle=DTsubscription_oracle(DTSUBSCRIPTION,self.pod_pk)
         BaseHTTPRequestHandler.__init__(self, *args)
 
 
-
-    def do_GET(self,auth_token=None,claim=None,id_subscription=None):
-        print(id_subscription) 
+    """
+    Handling of GET requests. 
+    Can only be internallt invoked by the do_POST() function.
+    Deliver the resource in the HTTP response.
+    """
+    def do_GET(self,auth_token=None,claim=None,id_subscription=None): 
         if auth_token==claim==id_subscription==None:
             self.send_error(400, "Bad request")
             return None
@@ -48,19 +56,16 @@ class DTpod_service(BaseHTTPRequestHandler):
             return None
         f = self.send_head()     
         result=f.read()
-        print(auth_token,claim)
         if f:            
             if type(result)==type("a"):
                 self.wfile.write(bytes(result,'utf-8'))
             else:
                 self.wfile.write(result)
             f.close()
-        
-    def do_HEAD(self):
-        f = self.send_head()
-        if f:
-            f.close()
-
+    """
+    Handling of POST requests. 
+    After the extraction of the POST body parameters from the request, it invokes the do_GET() function.
+    """  
     def do_POST(self):
         claim=None
         auth_token=None
@@ -84,7 +89,9 @@ class DTpod_service(BaseHTTPRequestHandler):
         
    
       
-
+    """
+    Sets the head of the HTTP response.
+    """ 
     def send_head(self):
         path = self.translate_path(self.path)
         f = None
@@ -107,47 +114,11 @@ class DTpod_service(BaseHTTPRequestHandler):
         fs = os.fstat(f.fileno())
         self.end_headers()
         return f
-
-    def list_directory(self, path):
-  
-        try:
-            list = os.listdir(path)
-        except os.error:
-            self.send_error(404, "No permission to list directory")
-            return None
-        list.sort(key=lambda a: a.lower())
-        f = StringIO()
-        displaypath = html.escape(urllib.parse.unquote(self.path))
-        f.write('<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">')
-        f.write("<html>\n<title>Directory listing for %s</title>\n" % displaypath)
-        f.write("<body>\n<h2>Directory listing for %s</h2>\n" % displaypath)
-        f.write("<hr>\n")
-        for name in list:
-            fullname = os.path.join(path, name)
-            displayname = linkname = name
-            # Append / for directories or @ for symbolic links
-            if displayname.startswith("."):
-                continue
-            if os.path.isdir(fullname):
-                displayname = name + "/"
-                linkname = name + "/"
-            if os.path.islink(fullname):
-                displayname = name + "@"
-                # Note: a link to a directory displays with @ and links with /
-            f.write('<li><a href="%s">%s</a>\n'
-                    % (urllib.parse.quote(linkname), html.escape(displayname)))
-        f.write("</ul>\n<hr>\n</body>\n</html>\n")
-        length = f.tell()
-        f.seek(0)
-        self.send_response(200)
-        self.send_header("Content-type", "text/html")
-        self.send_header("Content-Length", str(length))
-        self.end_headers()
-        return f
-
+    """
+    Standardizes the URL path pointing to the requested resource.
+    """     
     def translate_path(self, path):
      
-        # abandon query parameters
         path = path.split('?',1)[0]
         path = path.split('#',1)[0]
         path = posixpath.normpath(urllib.parse.unquote(path))
@@ -160,13 +131,10 @@ class DTpod_service(BaseHTTPRequestHandler):
             if word in (os.curdir, os.pardir): continue
             path = os.path.join(path, word)
         return path
-
-    def copyfile(self, source, outputfile):
-    
-        shutil.copyfileobj(source, outputfile)
-
+    """
+    Define the type of the requested resource.
+    """ 
     def guess_type(self, path):
-    
 
         base, ext = posixpath.splitext(path)
         if ext in self.extensions_map:
@@ -186,28 +154,33 @@ class DTpod_service(BaseHTTPRequestHandler):
         '.c': 'text/plain',
         '.h': 'text/plain',
         })
+
+"""
+Wrapper class used to create Stoppable instances of HTTP servers.
+"""      
 class StoppableHTTPServer(HTTPServer):
 
     stopped = False
     allow_reuse_address = True
-
+    """
+    Class initializer.
+    """  
     def __init__(self, *args, **kw):
         HTTPServer.__init__(self, *args, **kw)
         self.base_path=args[2]
 
-
+    """
+    Puts the server on listening of HTTP requests.
+    """
     def serve_forever(self):
         while not self.stopped:
             self.handle_request()
-
+    """
+    Stops the requests listening.
+    """
     def force_stop(self):
         print("Stopping server...")
         self.server_close()
         self.stopped = True
-        #self.create_dummy_request()
-
-#server=StoppableHTTPServer(('localhost',9999),SimpleHTTPRequestHandler)
-#print("Server now running...")
-#server.serve_forever()
 
 

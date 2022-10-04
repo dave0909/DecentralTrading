@@ -430,10 +430,7 @@ class PodManagement(tk.Frame):
             messagebox.showerror('Error', 'Please choose only one alternative')
         else:
             self.send_default_domain_obligation(result)
-       
-        #self.synchronize_resources()
     def start_server(self):
-        print("ci provo diocane")
         thread = Thread(None, self.pod.serve_forever)
         thread.start()
 
@@ -615,7 +612,7 @@ class PodManagement(tk.Frame):
         resource_frame = ResourceManagement(parent=self.parent, controller=self.controller,resource_information=resource_information)
         resource_frame.grid(column=0,row=0,sticky="nsew")
         resource_frame.tkraise()
-        #print(self.controller)
+
 
 
         
