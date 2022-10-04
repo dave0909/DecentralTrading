@@ -1,3 +1,12 @@
-DTINDEXING="0xEd9d66bec00131ECcd29f700f67FD4bb97AAc43b"
-DTSUBSCRIPTION="0x7da7F4E0C435226a7470Fb5c12cD035641E48DBb"
-DTTOKEN="0x465FC1190A4f7Fbe249624E97B0ED2ffbFe5275D"
+"""
+Address of the DTindexing smart contract.
+"""
+DTINDEXING="PUT_ADDRESS_HERE"
+"""
+Address of the DTsubscriptions smart contract.
+"""
+DTSUBSCRIPTION="PUT_ADDRESS_HERE"
+"""
+Address of the DTtoken smart contract.
+"""
+DTTOKEN="PUT_ADDRESS_HERE"
