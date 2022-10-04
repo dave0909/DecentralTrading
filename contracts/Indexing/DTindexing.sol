@@ -8,6 +8,8 @@ import "../Policies/DTobligations.sol";
   Metadata collected in DTindexing are used to coordinate processes in DecentralTrading market.
   Data Consumers interact with the smart contract to retrieve information regarding pods and resources.
   */
+
+  
 contract DTindexing
 {
     /*
