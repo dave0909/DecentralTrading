@@ -15,9 +15,6 @@ class DTsubscription_oracle:
 
         
     def pull_subscription_verification(self,id_subscription,claim):
-       # tx=self.contract_instance.functions.verify_subscription(id_subscription,claim).buildTransaction({'gasPrice': Web3.toWei(21, 'gwei'),'nonce': self.provider.eth.getTransactionCount(self.account.address)})
-       # signed_txn = self.provider.eth.account.sign_transaction(tx, private_key=self.private_key)
-       # tx=Web3.toHex(self.provider.eth.sendRawTransaction(signed_txn.rawTransaction))
         result=self.contract_instance.functions.verify_subscription(id_subscription,Web3.toChecksumAddress(claim)).call()
         print("is subscription verified: ",result)
         return result
