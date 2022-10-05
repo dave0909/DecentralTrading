@@ -18,31 +18,26 @@ from DTobligation_oracle import DTobligation_oracle
 from DTindexing_oracle import DTindexing_oracle
 from tkinter import filedialog as fd
 from tkinter import messagebox
-#TODO
-#Return only initialized resources
-#resource synch
-#obligation synch
-#POD ADDRESS TO BE USED NOT OWNER
-#back  to the pod page button
 
+"""
+The class is the controller entity of the graphical user interface for the pod management.
+Contains the logic for controlling windows and view transitions.
+The views of the application are implemented through the TKinter python library and modelled as tk.Frame subclasses.
+""" 
 class App(tk.Tk):
-
+    """
+    Class initializer.
+    Sets up the main window settings
+    """ 
     def __init__(self, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
         self.pod_path=""
         self.title_font = tkfont.Font(size=15)
-        #self.push_in_indexing=IndexingPushInOracle("0xA819e0c35354d226309728174d343a984756Fa57","0x9bc378729ea72bbb29171946c3a0173aef589a9cbb64d4df9a696f5cb8082bdc")
-        # the container is where we'll stack a bunch of frames
-        # on top of each other, then the one we want visible
-        # will be raised above the others
-        #self.geometry('500x600')
         width= self.winfo_screenwidth()               
         height= self.winfo_screenheight()               
         self.geometry("%dx%d" % (width, height))
         self.resizable(False,False)
         self.domain_dict={1:"Social",2:"Finance",3:"Medical",None:"None"}
-       # self.maxsize(self.winfo_screenheight()  ,self.winfo_screenwidth() )
-        #self.attributes("-fullscreen", True) 
         container = tk.Frame(self)
         container.pack(side="top", fill="both", expand=True)
         container.grid_rowconfigure(0, weight=1)
@@ -53,17 +48,24 @@ class App(tk.Tk):
             frame = F(parent=container, controller=self)
             self.frames[page_name] = frame
             frame.grid(row=0, column=0, sticky="nsew")
-            #frame.pack(side="top", fill="both", expand=True)
         self.show_frame("WelcomePage")
+    """
+    Transition function.
+    """     
     def show_frame(self, page_name):
         '''Show a frame for the given page name'''
         frame = self.frames[page_name]
         frame.tkraise()
 
-class WelcomePage(tk.Frame):
-    #Aggiungere creazione smart contract obligations
-    #creazione pod locale con DTobligation
-    
+
+"""
+Class implementing the welcome page of the application.
+Allows users to open a local pod or to create a new one.
+""" 
+class WelcomePage(tk.Frame):  
+    """
+    Sets up the main graphical elements of the view.
+    """ 
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         self.controller = controller
@@ -81,9 +83,7 @@ class WelcomePage(tk.Frame):
         c1 = tk.Checkbutton(frame_checkbutton, text='Social',variable=self.social, onvalue=1, offvalue=0).grid(column=0,row=0,sticky=W)
         c2 = tk.Checkbutton(frame_checkbutton, text='Finance',variable=self.finance, onvalue=1, offvalue=0).grid(column=1,row=0,sticky=W)
         c3 = tk.Checkbutton(frame_checkbutton, text='Medical',variable=self.medical, onvalue=1, offvalue=0).grid(column=2,row=0,sticky=W)
-     #   button1 = tk.Button(podsRegistration, text="submit").grid(column=0,row=1)
         frame_checkbutton.grid(column=1,row=1)
-        
         tk.Label(podsRegistration, text="Owner public key: ").grid(column=0,row=2)
         public_key_owner = tk.Entry(podsRegistration)
         public_key_owner.grid(column=1,row=2)
@@ -93,13 +93,18 @@ class WelcomePage(tk.Frame):
         button2 = tk.Button(podsRegistration, text="submit", command = lambda:self.submit_validation(public_key_owner.get(),private_key_owner.get(),e1.get())).grid(column=2,row=4)
         podsRegistration.grid(column=1,row=1)
         open_pod=tk.Button(self, text="Open pod from filesystem", command = lambda:self.show_pod_page()).grid(column=1,row=2)
-        
+    """
+    Starts the pod initialization procedure.
+    """         
     def register_pod(self,public_key,private_key,pod_reference,pod_type):
         pod_location = filedialog.askdirectory()
         pod_location=pod_location+"/"+pod_reference
         indexing_oracle=DTindexing_oracle(DTINDEXING,private_key)
         id,public_key_pod,private_key_pod,obligation_address=indexing_oracle.register_Pod(bytes(pod_reference, 'utf-8'),pod_type,public_key,private_key)
         self.generate_config_files(pod_location,id,public_key_pod,public_key,private_key_pod,obligation_address)
+    """
+    Sets up the DTobligation.json and DTconfig.json files.
+    """ 
     def generate_config_files(self,pod_location,id,address,owner,private_key,obligations_address):
         os.makedirs(os.path.dirname(pod_location+"/"+"DTconfig.json"), exist_ok=True)
         with open(pod_location+"/"+"DTconfig.json", 'w') as f:
@@ -108,6 +113,10 @@ class WelcomePage(tk.Frame):
         with open(pod_location+"/"+"DTobligations.json", 'w') as f2:
             obligations={"default": {},"address":obligations_address}
             json.dump(obligations, f2, indent=2)
+
+    """
+    Validation of the pod's initialization fields.
+    """ 
     def submit_validation(self,public_key_owner,private_key_owner,pod_reference):
         
         if self.social.get()==self.medical.get()==self.finance.get()==0:
@@ -122,12 +131,12 @@ class WelcomePage(tk.Frame):
                 result=dictio[str(d)]
         if n_set>1:
             messagebox.showerror('Error', 'Please choose only one alternative')
-        else:
-            #self.controller.obligations_oracle.set_domain_obligation(self.resource_id,result)
-            #self.send_domain_obligation(self.resource_id,result)    
+        else:  
             self.register_pod(public_key_owner,private_key_owner,pod_reference,result)    
 
-
+    """
+    Transition function to the Pod's view.
+    """ 
     def show_pod_page(self,pod_path="C:\\Users\\david\\Desktop\\DTPod"):
 
         pod_location = filedialog.askdirectory()
@@ -307,8 +316,14 @@ class ResourceManagement(tk.Frame):
 
 
 
-
+"""
+Class implementing the view to control a specific pod.
+Allows users add/remove resources, starts the pod web service and control pod's information.
+""" 
 class PodManagement(tk.Frame):
+    """
+    Sets up the main graphical elements of the window.
+    """ 
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent,padx=10,pady=20)
         self.parent=parent
@@ -319,21 +334,19 @@ class PodManagement(tk.Frame):
                 DTpod_service(self.controller.pod_pk,*args)
             self.pod=StoppableHTTPServer(('localhost',9999),handler,self.controller.pod_path)
             self.controller.push_in_indexing=DTindexing_oracle(DTINDEXING,self.controller.pod_pk)
-            
-            print("ECCOLO")
             self.initialise_layout()
         else:
             label = tk.Label(self, text="Pod Management",font=controller.title_font)
             address = tk.Label(self, text="The given path does not contain a DTPod").grid(0,0)
-    
+    """
+    Sets up the pod management view
+    """     
     def initialise_layout(self):
-        #self.controller.push_in_indexing=IndexingPushInOracle("0x6d90161564De23ACbEeE1564eEc97E5dD93A3aDF",self.controller.pod_pk)
         for widget in self.winfo_children():
             widget.destroy()
         obligations=self.read_obligations()
         self.controller.obligations=obligations
         self.controller.obligations_oracle=DTobligation_oracle(self.controller.obligations['address'],self.controller.pod_pk)
-        #self.controller.default_obligations=obligations['default']
         label = tk.Label(self, text="Pod Management ",font=self.controller.title_font)
         label.grid(column=1,row=0)
         information_frame=tk.LabelFrame(self, text="Pod's Information",labelanchor='n',padx=10,pady=10)
@@ -347,14 +360,12 @@ class PodManagement(tk.Frame):
                             command=lambda: self.stop_server())
         button3=tk.Button(self, text="Add resource",
                             command=lambda: self.register_resource('0xcE0cb7B19c77De88dcD6c20E2d69cf1e57F6F1fB',self.controller.pod_id,0))
-                            #command=lambda: self.add_resource_to_config(self.controller.pod_path))
 
 
         button.grid(column=0,row=2)
         button2.grid(column=1,row=2)
         button3.grid(column=2,row=2)
         obligations_frame=tk.LabelFrame(self, text="Default Pod Obligation",labelanchor='n',padx=10,pady=10)
-        #label_ob = tk.Label(self, text="Default Pod obligations",font=self.controller.title_font).grid(column=1,row=3)
         tk.Label(obligations_frame, text="Default Access Counter: "+str(self.get_default_obligation_value('access_counter'))).grid(column=0,row=0,sticky=W)
         tk.Label(obligations_frame, text="Set").grid(column=1,row=0)
         entry_access = tk.Entry(obligations_frame)
@@ -362,17 +373,12 @@ class PodManagement(tk.Frame):
         submit_access=tk.Button(obligations_frame, text="Submit", command=lambda: self.send_default_access_counter_obligation(int(entry_access.get()))).grid(column=3,row=0)
         remove_access=tk.Button(obligations_frame, text="Remove obligation" ,command=lambda: self.remove_default_access_counter_obligation()).grid(column=4,row=0)
 
-
-
-       # tk.Frame(se,background="#000000").grid(row=4,column=1)
         tk.Label(obligations_frame, text="Default Temporal Obligation: "+str(self.get_default_obligation_value('temporal'))).grid(column=0,row=1,sticky=W)
         tk.Label(obligations_frame, text="Set").grid(column=1,row=1)
         entry_temporal = tk.Entry(obligations_frame)
         entry_temporal.grid(column=2,row=1,sticky=W)
         submit_temporal=tk.Button(obligations_frame, text="Submit",command=lambda: self.send_default_temporal_obligation(int(entry_temporal.get()))).grid(column=3,row=1)
         remove_access=tk.Button(obligations_frame, text="Remove obligation" ,command=lambda: self.remove_default_temporal_obligation()).grid(column=4,row=1)
-
-        
 
         tk.Label(obligations_frame, text="Domain Obligation: "+self.controller.domain_dict[self.get_default_obligation_value('domain')]).grid(column=0,row=2,sticky=W)
         domain_frame=tk.Frame(obligations_frame)
@@ -386,8 +392,6 @@ class PodManagement(tk.Frame):
         submit_Domain=tk.Button(obligations_frame, text="Submit",command=lambda: self.submit_domain_button()).grid(column=3,row=2)
         tk.Button(obligations_frame, text="Remove obligation",command=lambda: self.remove_default_domain_obligation()).grid(column=4,row=2)
 
-                
-
         tk.Label(obligations_frame, text="Country Obligation: "+str(self.get_default_obligation_value('country'))).grid(column=0,row=3,sticky=W)
         tk.Label(obligations_frame, text="Set").grid(column=1,row=3)
         entry_Country = tk.Entry(obligations_frame)
@@ -396,9 +400,7 @@ class PodManagement(tk.Frame):
         tk.Button(obligations_frame, text="Remove obligation",command=lambda:self.remove_default_country_obligation()).grid(column=4,row=3)
         
         
-
         obligations_frame.grid(column=1,row=3)
-        #tk.Label(self, text="Initialised Resources",font=self.controller.title_font).grid(column=1,row=4)
         initialisesd_reources=tk.LabelFrame(self, text="Initialised Resources",labelanchor='n',font=self.controller.title_font,padx=10,pady=10)
         res=self.get_initialised_resources()
         row_counter=0
@@ -414,7 +416,9 @@ class PodManagement(tk.Frame):
                         command=lambda parameter=r: self.show_resource_page(parameter)).grid(column=2,row=row_counter)
             row_counter=row_counter+1
         initialisesd_reources.grid(column=1,row=4)
-        
+    """
+    Starts the recording of a new default domain rule for the pod.
+    """       
     def submit_domain_button(self):
         if self.social.get()==self.medical.get()==self.finance.get()==0:
             messagebox.showerror('Error', 'Please choose an alternative')
@@ -430,20 +434,30 @@ class PodManagement(tk.Frame):
             messagebox.showerror('Error', 'Please choose only one alternative')
         else:
             self.send_default_domain_obligation(result)
+    """
+    Starts the HTTP web service for the resources delivery.
+    """ 
     def start_server(self):
         thread = Thread(None, self.pod.serve_forever)
         thread.start()
-
+    """
+    Starts the HTTP web service for the pod.
+    """ 
     def get_initialised_resources(self):
         f = open(self.controller.pod_path+"\\DTconfig.json")
         config=json.load(f)
         return config['resources']
-        
+    """
+    Stops the HTTP web service for the pod.
+    """         
     def stop_server(self):
         self.pod.force_stop()
         def handler(*args):
             DTpod_service(self.controller.pod_pk,*args)
         self.pod=StoppableHTTPServer(('localhost',9999),handler,self.controller.pod_path)
+    """
+    Initializes the procedure to deactivate a pod's resource.
+    """ 
     def remove_resource(self,resId):
         self.controller.push_in_indexing.deactivate_resource(resId);
         f = open(self.controller.pod_path+"\\DTconfig.json")
@@ -457,16 +471,16 @@ class PodManagement(tk.Frame):
             else:
                 location=res['location']
         config['resources']=new_resources
-        #path_to_remove=self.controller.pod_location+location
         with open(self.controller.pod_path+"\\DTconfig.json", "w") as outfile:
             json.dump(config,outfile)
         path_to_remove=self.controller.pod_path+location
         path_to_remove=path_to_remove.replace("/","\\")
-        print(path_to_remove)
         os.remove(path_to_remove)
         self.initialise_layout()
 
-
+    """
+    Verifies the validity of the DTconfig.json file
+    """     
     def validate_path(self,path):
         config_exist=os.path.exists(path+"\\DTconfig.json")
         if config_exist:
@@ -479,13 +493,17 @@ class PodManagement(tk.Frame):
             f.close()
         return config_exist
 
-
+    """
+    Retrieves the default obligation rules related to the pod.
+    """ 
     def get_default_obligation_value(self,obligation_name):
         try:
             return self.controller.obligations['default'][obligation_name]
         except:
             return None
-
+    """
+    Add a resource in the DTconfig.json file
+    """ 
     def add_resource_to_config(self,path,id_resource,location):
         config_exist=os.path.exists(path+"\\DTconfig.json")
         if config_exist:
@@ -501,7 +519,9 @@ class PodManagement(tk.Frame):
         return False
 
 
-
+    """
+    Initialize a new resource in the pod.
+    """
     def register_resource(self,reference,podId,subscription):
         path=fd.askopenfilename(title='Select a resource to initialize')
         destination=fd.askdirectory(title='Select a location internal to the pod location',initialdir=self.controller.pod_path)
@@ -522,22 +542,30 @@ class PodManagement(tk.Frame):
              messagebox.showerror('Error', 'Please select a path inside your DTPod location: '+self.controller.pod_path)
     
 
-
+    """
+    Starts the recording of a new default temporal obligation rule.
+    """   
     def send_default_temporal_obligation(self,temporal_obligation):
         self.controller.obligations_oracle.set_default_temporal_obligation(temporal_obligation)
         self.write_default_obligations("temporal",temporal_obligation)
         self.initialise_layout()
-
+    """
+    Starts the recording of a new default access counter obligation rule.
+    """ 
     def send_default_access_counter_obligation(self,access_counter):
         self.controller.obligations_oracle.set_default_access_counter_obligation(access_counter)
         self.write_default_obligations("access_counter",access_counter)
         self.initialise_layout()
-
+    """
+    Starts the recording of a new default country obligation rule.
+    """ 
     def send_default_country_obligation(self,country):
         self.controller.obligations_oracle.set_default_country_obligation(country)
         self.write_default_obligations("country",country)
         self.initialise_layout()
-
+    """
+    Starts the recording of a new default domain obligation rule.
+    """ 
     def send_default_domain_obligation(self,domain):
                 
         self.controller.obligations_oracle.set_default_domain_obligation(domain)
@@ -545,29 +573,46 @@ class PodManagement(tk.Frame):
         self.initialise_layout()
 
 
-
+    """
+    Records a new rule in the local DTobligation.json file
+    """ 
     def write_default_obligations(self,obligation_name,value):
         obligations=self.read_obligations()
         obligations['default'][obligation_name]=value
         with open(self.controller.pod_path+"\\DTobligations.json", "w") as outfile:
             json.dump(obligations,outfile)
-        return True        
+        return True
+    """
+    Starts the deactivation of a default access counter obligation rule.
+    """  
     def remove_default_access_counter_obligation(self):
         self.controller.obligations_oracle.deactivate_default_access_counter_obligation()
         print(self.cancel_default_obligation_json("access_counter"))
         self.initialise_layout()
+    """
+    Starts the deactivation of a default access counter obligation rule.
+    """      
     def remove_default_temporal_obligation(self):
         self.controller.obligations_oracle.deactivate_default_temporal_obligation()
         print(self.cancel_default_obligation_json("temporal"))
         self.initialise_layout()
+    """
+    Starts the deactivation of a default domain obligation rule.
+    """
     def remove_default_domain_obligation(self):
         self.controller.obligations_oracle.deactivate_default_domain_obligation()
         print(self.cancel_default_obligation_json("domain"))
         self.initialise_layout()
+    """
+    Starts the deactivation of a default country obligation rule.
+    """
     def remove_default_country_obligation(self):
         self.controller.obligations_oracle.deactivate_default_country_obligation()
         print(self.cancel_default_obligation_json("country"))
         self.initialise_layout()
+    """
+    Remove an obligation rule from the local DTobligations.json file
+    """
     def cancel_default_obligation_json(self,obligation_name):
         obligations=self.read_obligations()
         if obligations!=None:
@@ -576,7 +621,9 @@ class PodManagement(tk.Frame):
                 json.dump(obligations,outfile)
             return True 
         return False
-    
+    """
+    Remove an obligation rule from the local DTobligations.json file
+    """    
     def read_config_file(self):
         try:
             f = open(self.controller.pod_path+"\\DTconfig.json",mode='r')
@@ -584,6 +631,9 @@ class PodManagement(tk.Frame):
             return config
         except OSError:
             return None
+    """
+    Read obligation rules from the DTobligations.json file.
+    """ 
     def read_obligations(self):
         try:
             f = open(self.controller.pod_path+"\\DTobligations.json",mode='r')
@@ -592,8 +642,6 @@ class PodManagement(tk.Frame):
         except OSError:
             return None
 
-
-    #TODO
     def synchronize_resources(self):
         bc_resources=self.controller.push_in_indexing.get_resource_information(self.controller.pod_id)
         config_file=self.read_config_file()
@@ -601,25 +649,21 @@ class PodManagement(tk.Frame):
             print(config_file)
             print(bc_resources)
 
-    
+    """
+    Verifies from the local DTobligation.json file if a resource has dedicated obligation rules.
+    """     
     def hasSpecificRules(self,id):
         obligations=self.read_obligations()
         return str(id) in obligations.keys()
 
-    
+    """
+    Transition to a resource control page
+    """     
     def show_resource_page(self,resource_information):
         resource_information['hasSpecificObligations']=self.hasSpecificRules(resource_information['id'])
         resource_frame = ResourceManagement(parent=self.parent, controller=self.controller,resource_information=resource_information)
         resource_frame.grid(column=0,row=0,sticky="nsew")
         resource_frame.tkraise()
-
-
-
-        
-
-    
-
-
 
 
 if __name__ == "__main__":

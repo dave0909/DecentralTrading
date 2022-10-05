@@ -22,7 +22,7 @@ except ImportError:
     from io import StringIO
 from DTaddresses import *
 """
-Class that implement the pod's web service.
+Class that implements the pod's web service.
 The class allows the pod to deliver on demand data through the HTTP protocol
 """
 class DTpod_service(BaseHTTPRequestHandler):
@@ -30,14 +30,12 @@ class DTpod_service(BaseHTTPRequestHandler):
     server_version = "SimpleHTTPWithUpload/" + __version__
     authenticator=DTauthenticator()
     """
-    Class that implement the pod's web service.
-    The class allows the pod to deliver on demand data through the HTTP protocol
+    Initializer of the class
     """
     def __init__(self, pod_pk,*args):
         self.pod_pk=pod_pk
         self.subscription_oracle=DTsubscription_oracle(DTSUBSCRIPTION,self.pod_pk)
         BaseHTTPRequestHandler.__init__(self, *args)
-
 
     """
     Handling of GET requests. 
@@ -132,7 +130,7 @@ class DTpod_service(BaseHTTPRequestHandler):
             path = os.path.join(path, word)
         return path
     """
-    Define the type of the requested resource.
+    Defines the type of the requested resource.
     """ 
     def guess_type(self, path):
 
